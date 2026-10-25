@@ -1,5 +1,6 @@
-const URL_ = process.env.SUPABASE_URL;
-const KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+// FROGCRAFT_* hat Vorrang (eigene Variablen), sonst die von der Vercel-Supabase-Integration gesetzten.
+const URL_ = process.env.FROGCRAFT_SUPABASE_URL || process.env.SUPABASE_URL;
+const KEY = process.env.FROGCRAFT_SUPABASE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
 
 export type Player = {
   uuid: string; username: string; joined_at: string | null; last_seen: string | null;

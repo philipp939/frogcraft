@@ -52,7 +52,7 @@ export default async function Home() {
                     <li key={p.uuid}>
                       <Link href={`/spieler/${p.uuid}`}>
                         <span className="rank">{n + 1}</span>
-                        <Avatar uuid={p.uuid} size={24} />
+                        <Avatar uuid={p.uuid} size={32} />
                         <span className="nm">{p.username}</span>
                         <span className="v">{value(b.sort, p)}</span>
                       </Link>

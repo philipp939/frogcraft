@@ -28,7 +28,7 @@ export default async function Profil({ params }: Props) {
   return (
     <>
       <section className="profile">
-        <Avatar uuid={p.uuid} size={72} />
+        <Avatar uuid={p.uuid} size={96} />
         <div><h1>{p.username}</h1><p className="muted uuid">{p.uuid}</p></div>
       </section>
       <section className="grid stats">

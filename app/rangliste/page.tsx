@@ -6,7 +6,7 @@ import { leaderboard, SORTS, type Sort, fmtNum, fmtTime, kd } from "@/lib/db";
 export const metadata: Metadata = { title: "Ranglisten", description: "Kills, Spielzeit und Kontostand der FrogCraft-Spieler." };
 export const revalidate = 30;
 const SIZE = 25;
-const LABEL: Record<Sort, string> = { kills: "Kills", playtime_minutes: "Spielzeit", balance: "Kontostand", deaths: "Deaths" };
+const LABEL: Record<Sort, string> = { kills: "Kills", playtime_minutes: "Spielzeit", balance: "Kontostand" };
 
 export default async function Rangliste({ searchParams }: { searchParams: Promise<{ sort?: string; seite?: string }> }) {
   const sp = await searchParams;
@@ -22,8 +22,8 @@ export default async function Rangliste({ searchParams }: { searchParams: Promis
       <nav className="tabs" aria-label="Sortierung">
         {SORTS.map((s) => (<Link key={s} href={href(s)} aria-current={s === sort ? "page" : undefined}>{LABEL[s]}</Link>))}
       </nav>
-      {data === null ? <p className="card err">Daten gerade nicht verfügbar.</p> : data.rows.length === 0 ? <p className="card muted">Keine Einträge vorhanden.</p> : (
-        <div className="card tablewrap">
+      {data === null ? <p className="notice">Daten gerade nicht verfügbar.</p> : data.rows.length === 0 ? <p className="panel muted">Keine Einträge vorhanden.</p> : (
+        <div className="panel tablewrap">
           <table>
             <thead><tr><th>#</th><th>Spieler</th><th className="r">{LABEL[sort]}</th><th className="r hide">K/D</th></tr></thead>
             <tbody>

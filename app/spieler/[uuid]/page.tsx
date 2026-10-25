@@ -16,7 +16,7 @@ export default async function Profil({ params }: Props) {
   const { uuid } = await params;
   const p = await getPlayer(uuid);
   if (p === null) notFound();
-  if (p === undefined) return <section className="card narrow"><h1>Gerade nicht erreichbar</h1><p className="muted">Die Datenbank antwortet nicht. Bitte später erneut versuchen.</p></section>;
+  if (p === undefined) return <section className="panel narrow"><h1>Gerade nicht erreichbar</h1><p className="muted">Die Datenbank antwortet nicht. Bitte später erneut versuchen.</p></section>;
 
   const [rk, rt, rm] = await Promise.all([rankOf("kills", p.kills), rankOf("playtime_minutes", p.playtime_minutes), rankOf("balance", p.balance)]);
   const stats: [string, string][] = [
@@ -32,9 +32,9 @@ export default async function Profil({ params }: Props) {
         <div><h1>{p.username}</h1><p className="muted uuid">{p.uuid}</p></div>
       </section>
       <section className="grid stats">
-        {stats.map(([k, v]) => (<div className="card" key={k}><h2>{k}</h2><p className="val">{v}</p></div>))}
+        {stats.map(([k, v]) => (<div className="panel" key={k}><h2>{k}</h2><p className="val">{v}</p></div>))}
       </section>
-      <section className="card">
+      <section className="panel">
         <h2>Ranglisten-Positionen</h2>
         <ul className="ranks">{ranks.map(([k, v]) => (<li key={k}><span>{k}</span><strong>{v === null ? "–" : `#${fmtNum(v)}`}</strong></li>))}</ul>
         <p className="muted small">K/D wird als Kills geteilt durch max(Deaths, 1) berechnet.</p>

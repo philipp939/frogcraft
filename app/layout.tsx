@@ -4,9 +4,11 @@ import type { Metadata, Viewport } from "next";
 
 export const metadata: Metadata = {
   title: { default: "FrogCraft – Minecraft-Server", template: "%s · FrogCraft" },
-  description: "Spielerstatistiken, Profile und Ranglisten des FrogCraft Minecraft-Servers.",
+  description: "Ranglisten und Spielerprofile des FrogCraft Minecraft-Servers.",
 };
-export const viewport: Viewport = { themeColor: "#0b0f0c" };
+export const viewport: Viewport = {
+  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#ffffff" }, { media: "(prefers-color-scheme: dark)", color: "#000000" }],
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -14,10 +16,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <header className="nav">
           <div className="wrap navin">
-            <Link href="/" className="brand">🐸 FrogCraft</Link>
+            <Link href="/" className="brand">FrogCraft</Link>
             <nav aria-label="Hauptnavigation">
               <Link href="/rangliste">Ranglisten</Link>
-              <Link href="/#suche">Spielersuche</Link>
+              <Link href="/#suche">Suche</Link>
             </nav>
           </div>
         </header>

@@ -9,7 +9,7 @@ export type Player = {
 export const COLS = "uuid,username,joined_at,last_seen,playtime_minutes,deaths,kills,balance,rank_group";
 export const NAME_RE = /^[A-Za-z0-9_.]{3,17}$/;
 export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-export const SORTS = ["kills", "playtime_minutes", "balance", "deaths"] as const;
+export const SORTS = ["kills", "playtime_minutes", "balance"] as const;
 export type Sort = (typeof SORTS)[number];
 
 const headers = (extra: Record<string, string> = {}) => ({ apikey: KEY as string, ...extra });

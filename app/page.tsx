@@ -20,7 +20,7 @@ export default async function Home() {
     <>
       <section className="hero">
         <h1>FrogCraft</h1>
-        <p className="lead">Ranglisten und Statistiken des Servers.</p>
+        <p className="lead">Ranglisten und Spielerprofile des Servers.</p>
         {SERVER_IP && (
           <div className="row">
             <CopyIp ip={SERVER_IP} />

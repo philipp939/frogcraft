@@ -1,18 +1,19 @@
 import "./globals.css";
 import Link from "next/link";
+import { Press_Start_2P } from "next/font/google";
 import type { Metadata, Viewport } from "next";
+
+const pixel = Press_Start_2P({ weight: "400", subsets: ["latin"], variable: "--font-pixel", display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: "FrogCraft – Minecraft-Server", template: "%s · FrogCraft" },
   description: "Ranglisten und Spielerprofile des FrogCraft Minecraft-Servers.",
 };
-export const viewport: Viewport = {
-  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#ffffff" }, { media: "(prefers-color-scheme: dark)", color: "#000000" }],
-};
+export const viewport: Viewport = { themeColor: "#161616" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de">
+    <html lang="de" className={pixel.variable}>
       <body>
         <header className="nav">
           <div className="wrap navin">

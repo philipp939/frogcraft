@@ -20,10 +20,16 @@ async function query(qs: string): Promise<Player[] | null> {
   if (!configured) return null;
   try {
     const r = await fetch(`${URL_}/rest/v1/pvp_players?${qs}`, { headers: headers(), next: { revalidate: 30 } });
-    if (!r.ok) return null;
+    if (!r.ok) {
+      console.error(`[db] Supabase antwortete ${r.status}: ${(await r.text()).slice(0, 300)}`);
+      return null;
+    }
     const rows = (await r.json()) as Player[];
     return rows.map((p) => ({ ...p, balance: Number(p.balance) }));
-  } catch { return null; }
+  } catch (e) {
+    console.error("[db] Anfrage fehlgeschlagen:", e instanceof Error ? e.message : e);
+    return null;
+  }
 }
 
 export async function findByName(name: string): Promise<Player | null | undefined> {

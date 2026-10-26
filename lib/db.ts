@@ -4,15 +4,10 @@ const KEY = process.env.FROGCRAFT_SUPABASE_KEY || process.env.SUPABASE_PUBLISHAB
 
 export type Player = {
   uuid: string; username: string; joined_at: string | null; last_seen: string | null;
-  playtime_minutes: number; deaths: number; kills: number; balance: number; rank_group: string | null;
-  hidden: boolean; bio: string | null; playstyle: string | null; discord: string | null;
+  playtime_minutes: number; deaths: number; kills: number; balance: number; rank_group: string | null; hidden: boolean;
 };
 
-export const PLAYSTYLES: [string, string][] = [
-  ["bauen", "Bauen"], ["pvp", "PvP"], ["redstone", "Redstone"], ["erkunden", "Erkunden"], ["handel", "Handel"], ["farmen", "Farmen"],
-];
-
-export const COLS = "uuid,username,hidden,joined_at,last_seen,playtime_minutes,deaths,kills,balance,rank_group,bio,playstyle,discord";
+export const COLS = "uuid,username,hidden,joined_at,last_seen,playtime_minutes,deaths,kills,balance,rank_group";
 export const NAME_RE = /^[A-Za-z0-9_.]{3,17}$/;
 export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const SORTS = ["kills", "playtime_minutes", "balance"] as const;
@@ -115,3 +110,7 @@ export async function playerRanks(p: Player): Promise<Ranks> {
   ]);
   return { kills, playtime, balance };
 }
+
+/** LuckPerms-Gruppe -> Anzeige: "default" (oder leer) = Spieler, sonst der Gruppenname mit großem Anfangsbuchstaben. */
+export const rankLabel = (g: string | null | undefined) =>
+  !g || g.trim().toLowerCase() === "default" ? "Spieler" : g.trim().charAt(0).toUpperCase() + g.trim().slice(1);

@@ -6,7 +6,8 @@ import PlayerCard from "@/components/PlayerCard";
 import AccountPanel from "@/components/AccountPanel";
 import { SERVER_IP, serverStatus } from "@/lib/server";
 import { getMyProfile, getPvpHistory, getSession } from "@/lib/auth";
-import { setPvp } from "@/app/konto/actions";
+import SwitchRow from "@/components/SwitchRow";
+import { setHidden, setPvp } from "@/app/konto/actions";
 import { leaderboard, getPlayer, playerRanks, fmtNum, fmtTime, configured, UUID_RE, type Player, type Sort } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -86,13 +87,11 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
             {sp.info === "cooldown" && <p className="notice" role="alert">Du kannst PvP erst in etwa {mins} Min. wieder umstellen.</p>}
             {sp.info === "technisch" && <p className="notice" role="alert">Gerade technisch nicht möglich.</p>}
             {session.verified ? (
-              <form action={setPvp} className="pvprow">
-                <input type="hidden" name="from" value="home" />
-                <input type="hidden" name="enabled" value={session.pvp_enabled ? "0" : "1"} />
-                <span>PvP: <strong className={session.pvp_enabled ? "on" : "off"}>{session.pvp_enabled ? "AN" : "AUS"}</strong></span>
-                <button type="submit" className="btn">{session.pvp_enabled ? "Ausschalten" : "Einschalten"}</button>
-                <Link href="/?konto=1" scroll={false} className="btn ghost">Konto</Link>
-              </form>
+              <div className="settings">
+                <SwitchRow action={setPvp} on={session.pvp_enabled} label="PvP" desc="Nimmt dich in die PvP-Gruppe auf bzw. entfernt dich daraus." from="home" />
+                <SwitchRow action={setHidden} on={me?.hidden ?? false} label="Profil verstecken" desc="Nicht in den Ranglisten, andere sehen nur deinen Namen." from="home" />
+                <p><Link href="/?konto=1" scroll={false} className="btn ghost">Konto &amp; Verlauf</Link></p>
+              </div>
             ) : (
               <div className="pvprow">
                 <span className="off">Konto nicht verifiziert</span>

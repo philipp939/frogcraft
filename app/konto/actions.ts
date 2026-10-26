@@ -56,17 +56,14 @@ export async function newCode() {
   redirect("/?konto=1");
 }
 
-export async function saveProfile(f: FormData) {
+
+export async function setHidden(f: FormData) {
   const token = await getToken();
   if (!token) redirect("/?konto=login");
-  const r = await rpc("account_update_profile", {
-    p_token: token,
-    p_hidden: f.get("hidden") === "on",
-    p_bio: str(f, "bio").slice(0, 400),
-    p_playstyle: str(f, "playstyle"),
-    p_discord: str(f, "discord").slice(0, 80),
-  });
-  if (!r) redirect("/?konto=1&info=technisch");
-  if (!r.ok) redirect(`/?konto=1&info=${encodeURIComponent(r.error ?? "technisch")}`);
-  redirect("/?konto=1&info=gespeichert");
+  const home = str(f, "from") === "home";
+  const to = (qs: string) => (home ? `/?${qs}` : `/?konto=1&${qs}`);
+  const r = await rpc("account_set_hidden", { p_token: token, p_hidden: str(f, "enabled") === "1" });
+  if (!r) redirect(to("info=technisch"));
+  if (!r.ok) redirect(to(`info=${encodeURIComponent(r.error ?? "technisch")}`));
+  redirect(to("info=gespeichert"));
 }

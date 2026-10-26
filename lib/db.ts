@@ -102,3 +102,11 @@ export async function rpc<T extends object = object>(fn: string, args: Record<st
     return null;
   }
 }
+
+export type Ranks = { kills: number | null; playtime: number | null; balance: number | null };
+export async function playerRanks(p: Player): Promise<Ranks> {
+  const [kills, playtime, balance] = await Promise.all([
+    rankOf("kills", p.kills), rankOf("playtime_minutes", p.playtime_minutes), rankOf("balance", p.balance),
+  ]);
+  return { kills, playtime, balance };
+}

@@ -30,7 +30,7 @@ export default async function Rangliste({ searchParams }: { searchParams: Promis
               {data.rows.map((p, i) => (
                 <tr key={p.uuid}>
                   <td>{(page - 1) * SIZE + i + 1}</td>
-                  <td><Link href={`/spieler/${p.uuid}`} className="pl"><Avatar uuid={p.uuid} size={32} />{p.username}</Link></td>
+                  <td><Link href={`/?spieler=${p.uuid}`} className="pl"><Avatar uuid={p.uuid} size={32} />{p.username}</Link></td>
                   <td className="r">{val(p)}</td>
                   <td className="r hide">{kd(p.kills, p.deaths)}</td>
                 </tr>

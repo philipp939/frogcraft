@@ -20,13 +20,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/" className="brand">FrogCraft</Link>
             <nav aria-label="Hauptnavigation">
               <Link href="/rangliste">Ranglisten</Link>
-              <Link href="/#suche">Suche</Link>
-              <Link href="/konto">Konto</Link>
+              <Link href="/?konto=1" scroll={false}>Konto</Link>
             </nav>
+            <form action="/suche" method="get" className="navsearch" role="search">
+              <label htmlFor="navname" className="sr">Spieler suchen</label>
+              <input id="navname" name="name" placeholder="Spieler suchen" required minLength={3} maxLength={17} pattern="[A-Za-z0-9_.]{3,17}" autoComplete="off" autoCapitalize="off" spellCheck={false} />
+              <button type="submit" aria-label="Suchen">Los</button>
+            </form>
           </div>
         </header>
         <main className="wrap">{children}</main>
-        <footer className="wrap foot">FrogCraft ist kein offizielles Minecraft-Produkt und steht in keiner Verbindung zu Mojang oder Microsoft.</footer>
       </body>
     </html>
   );

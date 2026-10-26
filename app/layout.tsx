@@ -21,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <nav aria-label="Hauptnavigation">
               <Link href="/rangliste">Ranglisten</Link>
               <Link href="/#suche">Suche</Link>
+              <Link href="/konto">Konto</Link>
             </nav>
           </div>
         </header>

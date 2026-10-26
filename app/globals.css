@@ -95,3 +95,13 @@ td{padding:.85rem .5rem;font-size:1.05rem;border-top:2px solid #1c1c1c}
 @media(max-width:560px){.hide{display:none}.profile .avatar{width:56px;height:56px}.nav nav{gap:1rem}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.btn:active,.ip:active{transform:none}}
 @media(prefers-contrast:more){:root{--mut:#e0e0e0}}
+
+.form{display:grid;gap:1.25rem;margin:1.5rem 0}
+.field{display:grid;gap:.5rem;font-size:.95rem;color:var(--mut)}
+.field input{margin:4px;background:#0d0d0d;color:#fff;border:0;border-radius:12px;padding:1rem 1.2rem;font:inherit;font-size:1.05rem;
+  box-shadow:0 0 0 4px #000,inset 4px 4px 0 #1f1f1f,inset -4px -4px 0 #3a3a3a}
+.field input:focus{outline:3px solid var(--gold);outline-offset:4px}
+.notice.ok{background:#1f3a24;color:#d6ffd9;box-shadow:0 0 0 4px #000,inset 4px 4px 0 #3a6b43,inset -4px -4px 0 #112313}
+.code{font-family:var(--px);font-size:1.4rem;color:var(--gold);letter-spacing:.1em;margin:1.25rem 0;text-shadow:3px 3px 0 #000;word-break:break-all}
+.on{color:var(--grass-l)}.off{color:var(--err)}
+code{font-family:ui-monospace,monospace;background:#0d0d0d;padding:.1rem .4rem;border-radius:6px}

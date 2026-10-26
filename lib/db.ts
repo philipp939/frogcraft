@@ -81,3 +81,24 @@ export const fmtNum = (n: number) => new Intl.NumberFormat("de-DE", { maximumFra
 export const fmtDate = (s: string | null) =>
   s ? new Date(s).toLocaleString("de-DE", { timeZone: "Europe/Berlin", dateStyle: "medium", timeStyle: "short" }) : "–";
 export const kd = (k: number, d: number) => fmtNum(k / Math.max(d, 1));
+
+/** Ruft eine Datenbankfunktion auf (Konten/Sitzungen). null = technischer Fehler. */
+export async function rpc<T extends object = object>(fn: string, args: Record<string, unknown>): Promise<(T & { ok: boolean; error?: string }) | null> {
+  if (!configured) return null;
+  try {
+    const r = await fetch(`${URL_}/rest/v1/rpc/${fn}`, {
+      method: "POST",
+      headers: headers({ "Content-Type": "application/json" }),
+      body: JSON.stringify(args),
+      cache: "no-store",
+    });
+    if (!r.ok) {
+      console.error(`[db] rpc ${fn} antwortete ${r.status}`);
+      return null;
+    }
+    return (await r.json()) as T & { ok: boolean; error?: string };
+  } catch (e) {
+    console.error(`[db] rpc ${fn} fehlgeschlagen:`, e instanceof Error ? e.message : e);
+    return null;
+  }
+}

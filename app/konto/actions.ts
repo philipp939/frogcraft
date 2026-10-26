@@ -1,0 +1,53 @@
+"use server";
+import { redirect } from "next/navigation";
+import { NAME_RE, rpc } from "@/lib/db";
+import { clearSessionCookie, getToken, setSessionCookie } from "@/lib/auth";
+
+const str = (f: FormData, k: string) => String(f.get(k) ?? "");
+
+export async function register(f: FormData) {
+  const name = str(f, "name").trim();
+  const pw = str(f, "password");
+  if (!NAME_RE.test(name)) redirect("/registrieren?fehler=name");
+  if (pw.length < 8 || pw.length > 72) redirect("/registrieren?fehler=passwort");
+  if (pw !== str(f, "password2")) redirect("/registrieren?fehler=gleich");
+  const r = await rpc<{ token: string }>("auth_register", { p_username: name, p_password: pw });
+  if (!r) redirect("/registrieren?fehler=technisch");
+  if (!r.ok) redirect(`/registrieren?fehler=${encodeURIComponent(r.error ?? "technisch")}`);
+  await setSessionCookie(r.token);
+  redirect("/konto");
+}
+
+export async function login(f: FormData) {
+  const name = str(f, "name").trim();
+  const pw = str(f, "password");
+  if (!NAME_RE.test(name) || !pw) redirect("/login?fehler=invalid");
+  const r = await rpc<{ token: string }>("auth_login", { p_username: name, p_password: pw });
+  if (!r) redirect("/login?fehler=technisch");
+  if (!r.ok) redirect(`/login?fehler=${encodeURIComponent(r.error ?? "technisch")}`);
+  await setSessionCookie(r.token);
+  redirect("/konto");
+}
+
+export async function logout() {
+  const token = await getToken();
+  if (token) await rpc("auth_logout", { p_token: token });
+  await clearSessionCookie();
+  redirect("/");
+}
+
+export async function setPvp(f: FormData) {
+  const token = await getToken();
+  if (!token) redirect("/login");
+  const r = await rpc<{ wait_seconds?: number }>("account_set_pvp", { p_token: token, p_enabled: str(f, "enabled") === "1" });
+  if (!r) redirect("/konto?info=technisch");
+  if (!r.ok) redirect(`/konto?info=${encodeURIComponent(r.error ?? "technisch")}&wait=${r.wait_seconds ?? 0}`);
+  redirect("/konto?info=gespeichert");
+}
+
+export async function newCode() {
+  const token = await getToken();
+  if (!token) redirect("/login");
+  await rpc("account_new_code", { p_token: token });
+  redirect("/konto");
+}

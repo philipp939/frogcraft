@@ -5,9 +5,14 @@ const KEY = process.env.FROGCRAFT_SUPABASE_KEY || process.env.SUPABASE_PUBLISHAB
 export type Player = {
   uuid: string; username: string; joined_at: string | null; last_seen: string | null;
   playtime_minutes: number; deaths: number; kills: number; balance: number; rank_group: string | null;
+  hidden: boolean; bio: string | null; playstyle: string | null; discord: string | null;
 };
 
-export const COLS = "uuid,username,joined_at,last_seen,playtime_minutes,deaths,kills,balance,rank_group";
+export const PLAYSTYLES: [string, string][] = [
+  ["bauen", "Bauen"], ["pvp", "PvP"], ["redstone", "Redstone"], ["erkunden", "Erkunden"], ["handel", "Handel"], ["farmen", "Farmen"],
+];
+
+export const COLS = "uuid,username,hidden,joined_at,last_seen,playtime_minutes,deaths,kills,balance,rank_group,bio,playstyle,discord";
 export const NAME_RE = /^[A-Za-z0-9_.]{3,17}$/;
 export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const SORTS = ["kills", "playtime_minutes", "balance"] as const;
@@ -20,7 +25,7 @@ export const configured = Boolean(URL_ && KEY);
 async function query(qs: string): Promise<Player[] | null> {
   if (!configured) return null;
   try {
-    const r = await fetch(`${URL_}/rest/v1/pvp_players?${qs}`, { headers: headers(), next: { revalidate: 30 } });
+    const r = await fetch(`${URL_}/rest/v1/player_public?${qs}`, { headers: headers(), next: { revalidate: 30 } });
     if (!r.ok) {
       console.error(`[db] Supabase antwortete ${r.status}: ${(await r.text()).slice(0, 300)}`);
       return null;
@@ -50,7 +55,7 @@ export async function getPlayer(uuid: string): Promise<Player | null | undefined
 }
 
 export async function leaderboard(sort: Sort, page: number, size: number) {
-  const rows = await query(`select=${COLS}&order=${sort}.desc,username.asc&limit=${size + 1}&offset=${(page - 1) * size}`);
+  const rows = await query(`select=${COLS}&hidden=eq.false&order=${sort}.desc,username.asc&limit=${size + 1}&offset=${(page - 1) * size}`);
   if (rows === null) return null;
   return { rows: rows.slice(0, size), hasNext: rows.length > size };
 }
@@ -58,7 +63,7 @@ export async function leaderboard(sort: Sort, page: number, size: number) {
 async function count(filter: string): Promise<number | null> {
   if (!configured) return null;
   try {
-    const r = await fetch(`${URL_}/rest/v1/pvp_players?select=uuid${filter}`, {
+    const r = await fetch(`${URL_}/rest/v1/player_public?select=uuid&hidden=eq.false${filter}`, {
       headers: headers({ Prefer: "count=exact", Range: "0-0" }), next: { revalidate: 60 },
     });
     if (!r.ok) return null;

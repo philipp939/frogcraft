@@ -5,7 +5,7 @@ import Modal from "@/components/Modal";
 import PlayerCard from "@/components/PlayerCard";
 import AccountPanel from "@/components/AccountPanel";
 import { SERVER_IP, serverStatus } from "@/lib/server";
-import { getSession } from "@/lib/auth";
+import { getMyProfile, getPvpHistory, getSession } from "@/lib/auth";
 import { setPvp } from "@/app/konto/actions";
 import { leaderboard, getPlayer, playerRanks, fmtNum, fmtTime, configured, UUID_RE, type Player, type Sort } from "@/lib/db";
 
@@ -35,17 +35,18 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
   const session = await getSession();
   const [status, me, ...boards] = await Promise.all([
     serverStatus(),
-    session ? getPlayer(session.uuid) : Promise.resolve(null),
+    session ? getMyProfile(session.token) : Promise.resolve(null),
     ...BOARDS.map((b) => leaderboard(b.sort, 1, 5)),
   ]);
-  const myRanks = me ? await playerRanks(me) : null;
+  const myRanks = me ? (me.hidden ? { kills: null, playtime: null, balance: null } : await playerRanks(me)) : null;
+  const history = sp.konto && session ? await getPvpHistory(session.token) : [];
 
   // Fenster (Konto oder Spielerprofil) über die URL gesteuert
   let modal: React.ReactNode = null;
   if (sp.konto) {
     modal = (
       <Modal label="Konto">
-        <AccountPanel session={session} mode={sp.konto} fehler={sp.fehler} info={sp.info} wait={sp.wait} />
+        <AccountPanel session={session} mode={sp.konto} fehler={sp.fehler} info={sp.info} wait={sp.wait} profile={me} history={history} />
       </Modal>
     );
   } else if (sp.spieler) {
@@ -79,7 +80,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
 
       {session ? (
         <section className="panel me" aria-label="Meine Infos">
-          {me && myRanks ? <PlayerCard p={me} ranks={myRanks} showDates={false} /> : <p className="muted">Deine Daten sind gerade nicht verfügbar.</p>}
+          {me && myRanks ? <PlayerCard p={me} ranks={myRanks} showDates={false} own /> : <p className="muted">Deine Daten sind gerade nicht verfügbar.</p>}
           <div className="mepvp">
             {sp.info === "gespeichert" && <p className="notice ok" role="status">Gespeichert.</p>}
             {sp.info === "cooldown" && <p className="notice" role="alert">Du kannst PvP erst in etwa {mins} Min. wieder umstellen.</p>}

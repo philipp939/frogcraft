@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { rpc } from "@/lib/db";
+import { rpc, type Player } from "@/lib/db";
 
 export const COOKIE = "fc_session";
 const TOKEN_RE = /^[0-9a-f]{64}$/;
@@ -29,4 +29,16 @@ export async function setSessionCookie(token: string) {
 
 export async function clearSessionCookie() {
   (await cookies()).delete(COOKIE);
+}
+
+/** Eigenes, vollständiges Profil (auch wenn es für andere versteckt ist). */
+export async function getMyProfile(token: string): Promise<Player | null> {
+  const r = await rpc<Player>("account_get", { p_token: token });
+  return r && r.ok ? (r as unknown as Player) : null;
+}
+
+export type HistoryItem = { enabled: boolean; at: string };
+export async function getPvpHistory(token: string): Promise<HistoryItem[]> {
+  const r = await rpc<{ items: HistoryItem[] }>("account_pvp_history", { p_token: token });
+  return r && r.ok ? r.items : [];
 }

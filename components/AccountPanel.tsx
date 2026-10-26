@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { login, logout, newCode, register, setPvp } from "@/app/konto/actions";
-import type { Session } from "@/lib/auth";
+import { login, logout, newCode, register, saveProfile, setPvp } from "@/app/konto/actions";
+import type { HistoryItem, Session } from "@/lib/auth";
+import { PLAYSTYLES, fmtDate, type Player } from "@/lib/db";
 
 const ERR: Record<string, string> = {
   invalid: "Name oder Passwort ist falsch. Hast du dich schon registriert und im Spiel verifiziert?",
@@ -15,9 +16,19 @@ const ERR: Record<string, string> = {
   technisch: "Gerade technisch nicht möglich. Bitte versuche es gleich noch einmal.",
 };
 
-type Props = { session: Session | null; mode: string; fehler?: string; info?: string; wait?: string };
+const INFO_ERR: Record<string, string> = {
+  invalid_bio: "Der Text ist zu lang (maximal 140 Zeichen).",
+  invalid_playstyle: "Dieser Lieblingsmodus ist nicht erlaubt.",
+  invalid_discord: "Der Discord-Name ist ungültig (2–32 Zeichen: Kleinbuchstaben, Zahlen, _ und .).",
+  not_verified: "Bitte verifiziere dein Konto zuerst im Spiel.",
+};
 
-export default function AccountPanel({ session: s, mode, fehler, info, wait }: Props) {
+type Props = {
+  session: Session | null; mode: string; fehler?: string; info?: string; wait?: string;
+  profile?: Player | null; history?: HistoryItem[];
+};
+
+export default function AccountPanel({ session: s, mode, fehler, info, wait, profile, history = [] }: Props) {
   if (!s) {
     const reg = mode === "registrieren";
     return (
@@ -55,6 +66,7 @@ export default function AccountPanel({ session: s, mode, fehler, info, wait }: P
       {info === "gespeichert" && <p className="notice ok" role="status">Gespeichert.</p>}
       {info === "cooldown" && <p className="notice" role="alert">Du kannst PvP erst in etwa {mins} Min. wieder umstellen.</p>}
       {info === "technisch" && <p className="notice" role="alert">{ERR.technisch}</p>}
+      {info && INFO_ERR[info] && <p className="notice" role="alert">{INFO_ERR[info]}</p>}
 
       {!s.verified ? (
         <section className="sub">
@@ -81,6 +93,42 @@ export default function AccountPanel({ session: s, mode, fehler, info, wait }: P
             <button type="submit" className="btn">{s.pvp_enabled ? "PvP ausschalten" : "PvP einschalten"}</button>
           </form>
         </section>
+      )}
+      {s.verified && (
+        <>
+          <section className="sub">
+            <h3>Profil</h3>
+            <form action={saveProfile} className="form">
+              <label className="check">
+                <input type="checkbox" name="hidden" defaultChecked={profile?.hidden ?? false} />
+                <span>Profil verstecken (nicht in den Ranglisten, andere sehen nur deinen Namen)</span>
+              </label>
+              <label className="field">Über mich (max. 140 Zeichen)
+                <textarea name="bio" maxLength={140} rows={3} defaultValue={profile?.bio ?? ""} />
+              </label>
+              <label className="field">Lieblingsmodus
+                <select name="playstyle" defaultValue={profile?.playstyle ?? ""}>
+                  <option value="">Keiner</option>
+                  {PLAYSTYLES.map(([v, l]) => (<option key={v} value={v}>{l}</option>))}
+                </select>
+              </label>
+              <label className="field">Discord-Name (optional)
+                <input name="discord" maxLength={40} defaultValue={profile?.discord ?? ""} placeholder="z. B. frogfan" autoCapitalize="off" spellCheck={false} />
+              </label>
+              <button type="submit" className="btn">Profil speichern</button>
+            </form>
+          </section>
+          <section className="sub">
+            <h3>PvP-Verlauf</h3>
+            {history.length === 0 ? (<p className="muted small">Noch keine Änderungen.</p>) : (
+              <ul className="hist">
+                {history.map((h) => (
+                  <li key={h.at}><span className={h.enabled ? "on" : "off"}>{h.enabled ? "PvP eingeschaltet" : "PvP ausgeschaltet"}</span><span className="muted">{fmtDate(h.at)}</span></li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </>
       )}
       <div className="row" style={{ marginTop: "1.25rem" }}>
         <form action={logout}><button type="submit" className="btn ghost">Abmelden</button></form>

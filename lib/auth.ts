@@ -6,7 +6,8 @@ const TOKEN_RE = /^[0-9a-f]{64}$/;
 
 export type Session = {
   token: string; uuid: string; username: string; verified: boolean;
-  verify_code: string | null; verify_expires: string | null; pvp_enabled: boolean; cooldown_seconds: number;
+  verify_code: string | null; verify_expires: string | null; pvp_enabled: boolean; pvp_pending: boolean;
+  cooldown_seconds: number; cooldown_minutes: number; is_owner: boolean;
 };
 
 export async function getToken(): Promise<string | null> {

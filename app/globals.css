@@ -166,3 +166,7 @@ code{font-family:ui-monospace,monospace;background:#0d0d0d;padding:.1rem .4rem;b
 .settings p{margin:1rem 0 0}
 .tags{display:flex;flex-wrap:wrap;gap:.5rem;margin:.25rem 0 .5rem}
 .badge{font-family:var(--px);font-size:.6rem;padding:.45rem .7rem;background:var(--grass-d);color:#fff;border-radius:8px;text-shadow:2px 2px 0 #1f3d0f;box-shadow:0 0 0 2px #000}
+
+.switch:disabled{opacity:.75;cursor:progress}
+.note{color:var(--gold);margin:.2rem 0 0}
+.field input[type=number]{max-width:10rem}

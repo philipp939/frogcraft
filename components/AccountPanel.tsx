@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { login, logout, newCode, register, setHidden, setPvp } from "@/app/konto/actions";
+import { login, logout, newCode, register, saveCooldown, toggleHidden, togglePvp } from "@/app/konto/actions";
 import Avatar from "@/components/Avatar";
 import SwitchRow from "@/components/SwitchRow";
 import type { HistoryItem, Session } from "@/lib/auth";
@@ -80,9 +80,9 @@ export default function AccountPanel({ session: s, mode, fehler, info, wait, pro
       ) : (
         <section className="sub">
           <h3>Einstellungen</h3>
-          <SwitchRow action={setPvp} on={s.pvp_enabled} label="PvP" desc="Nimmt dich in die PvP-Gruppe auf bzw. entfernt dich daraus." />
-          <SwitchRow action={setHidden} on={profile?.hidden ?? false} label="Profil verstecken" desc="Nicht in den Ranglisten, andere sehen nur deinen Namen." />
-          <p className="muted small">PvP kannst du alle 10 Minuten umstellen. Die Änderung gilt auf dem Server nach wenigen Sekunden.</p>
+          <SwitchRow action={togglePvp} initial={s.pvp_enabled} label="PvP" desc="Gilt ab deinem nächsten Beitritt zum Server. Zum Übernehmen den Server verlassen und neu betreten." note={s.pvp_pending ? "Ausstehend – wird beim nächsten Beitritt aktiv." : undefined} />
+          <SwitchRow action={toggleHidden} initial={profile?.hidden ?? false} label="Profil verstecken" desc="Nicht in den Ranglisten, andere sehen nur deinen Namen." />
+          <p className="muted small">PvP kannst du nur alle {s.cooldown_minutes} Min. umstellen. Die Änderung gilt ab deinem nächsten Beitritt zum Server.</p>
         </section>
       )}
       {s.verified && (
@@ -98,6 +98,19 @@ export default function AccountPanel({ session: s, mode, fehler, info, wait, pro
             )}
           </section>
         </>
+      )}
+      {s.is_owner && (
+        <section className="sub">
+          <h3>Owner: Wartezeit für PvP</h3>
+          {info === "not_owner" && <p className="notice" role="alert">Nur der Rang Owner darf das ändern.</p>}
+          {info === "cooldown_invalid" && <p className="notice" role="alert">Bitte gib eine Zahl von 0 bis 1440 ein.</p>}
+          <form action={saveCooldown} className="form">
+            <label className="field">Minuten zwischen zwei Umstellungen (0 = keine Wartezeit)
+              <input name="minutes" type="number" min={0} max={1440} step={1} defaultValue={s.cooldown_minutes} required />
+            </label>
+            <button type="submit" className="btn">Speichern</button>
+          </form>
+        </section>
       )}
       <div className="row" style={{ marginTop: "1.25rem" }}>
         <form action={logout}><button type="submit" className="btn ghost">Abmelden</button></form>

@@ -7,7 +7,7 @@ import AccountPanel from "@/components/AccountPanel";
 import { SERVER_IP, serverStatus } from "@/lib/server";
 import { getMyProfile, getPvpHistory, getSession } from "@/lib/auth";
 import SwitchRow from "@/components/SwitchRow";
-import { setHidden, setPvp } from "@/app/konto/actions";
+import { toggleHidden, togglePvp } from "@/app/konto/actions";
 import { leaderboard, getPlayer, playerRanks, fmtNum, fmtTime, configured, UUID_RE, type Player, type Sort } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -88,8 +88,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
             {sp.info === "technisch" && <p className="notice" role="alert">Gerade technisch nicht möglich.</p>}
             {session.verified ? (
               <div className="settings">
-                <SwitchRow action={setPvp} on={session.pvp_enabled} label="PvP" desc="Nimmt dich in die PvP-Gruppe auf bzw. entfernt dich daraus." from="home" />
-                <SwitchRow action={setHidden} on={me?.hidden ?? false} label="Profil verstecken" desc="Nicht in den Ranglisten, andere sehen nur deinen Namen." from="home" />
+                <SwitchRow action={togglePvp} initial={session.pvp_enabled} label="PvP" desc="Gilt ab deinem nächsten Beitritt zum Server." note={session.pvp_pending ? "Ausstehend – wird beim nächsten Beitritt aktiv." : undefined} />
+                <SwitchRow action={toggleHidden} initial={me?.hidden ?? false} label="Profil verstecken" desc="Nicht in den Ranglisten, andere sehen nur deinen Namen." />
                 <p><Link href="/?konto=1" scroll={false} className="btn ghost">Konto &amp; Verlauf</Link></p>
               </div>
             ) : (

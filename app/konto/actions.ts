@@ -38,16 +38,6 @@ export async function logout() {
   redirect("/");
 }
 
-export async function setPvp(f: FormData) {
-  const token = await getToken();
-  if (!token) redirect("/?konto=login");
-  const home = str(f, "from") === "home";
-  const to = (qs: string) => (home ? `/?${qs}` : `/?konto=1&${qs}`);
-  const r = await rpc<{ wait_seconds?: number }>("account_set_pvp", { p_token: token, p_enabled: str(f, "enabled") === "1" });
-  if (!r) redirect(to("info=technisch"));
-  if (!r.ok) redirect(to(`info=${encodeURIComponent(r.error ?? "technisch")}&wait=${r.wait_seconds ?? 0}`));
-  redirect(to("info=gespeichert"));
-}
 
 export async function newCode() {
   const token = await getToken();
@@ -57,13 +47,33 @@ export async function newCode() {
 }
 
 
-export async function setHidden(f: FormData) {
+
+export async function togglePvp(enabled: boolean): Promise<{ ok: boolean; message?: string }> {
+  const token = await getToken();
+  if (!token) return { ok: false, message: "Bitte melde dich erneut an." };
+  const r = await rpc<{ wait_seconds?: number }>("account_set_pvp", { p_token: token, p_enabled: enabled });
+  if (!r) return { ok: false, message: "Gerade technisch nicht möglich. Bitte versuche es gleich noch einmal." };
+  if (!r.ok) {
+    if (r.error === "cooldown") return { ok: false, message: `Du kannst PvP erst in etwa ${Math.max(1, Math.ceil((r.wait_seconds ?? 60) / 60))} Min. wieder umstellen.` };
+    return { ok: false, message: "Das ist gerade nicht möglich. Ist dein Konto verifiziert?" };
+  }
+  return { ok: true, message: "Gilt ab deinem nächsten Beitritt zum Server." };
+}
+
+export async function toggleHidden(enabled: boolean): Promise<{ ok: boolean; message?: string }> {
+  const token = await getToken();
+  if (!token) return { ok: false, message: "Bitte melde dich erneut an." };
+  const r = await rpc("account_set_hidden", { p_token: token, p_hidden: enabled });
+  if (!r || !r.ok) return { ok: false, message: "Das hat nicht geklappt. Bitte versuche es gleich noch einmal." };
+  return { ok: true, message: "Gespeichert." };
+}
+
+export async function saveCooldown(f: FormData) {
   const token = await getToken();
   if (!token) redirect("/?konto=login");
-  const home = str(f, "from") === "home";
-  const to = (qs: string) => (home ? `/?${qs}` : `/?konto=1&${qs}`);
-  const r = await rpc("account_set_hidden", { p_token: token, p_hidden: str(f, "enabled") === "1" });
-  if (!r) redirect(to("info=technisch"));
-  if (!r.ok) redirect(to(`info=${encodeURIComponent(r.error ?? "technisch")}`));
-  redirect(to("info=gespeichert"));
+  const minutes = Number.parseInt(str(f, "minutes"), 10);
+  const r = Number.isFinite(minutes) ? await rpc("account_set_cooldown", { p_token: token, p_minutes: minutes }) : null;
+  if (!r) redirect("/?konto=1&info=cooldown_invalid");
+  if (!r.ok) redirect(`/?konto=1&info=${r.error === "not_owner" ? "not_owner" : "cooldown_invalid"}`);
+  redirect("/?konto=1&info=gespeichert");
 }

@@ -20,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/" className="brand">FrogCraft</Link>
             <nav aria-label="Hauptnavigation">
               <Link href="/rangliste">Ranglisten</Link>
+              <Link href="/befehle">Befehle</Link>
               <Link href="/?konto=1" scroll={false}>Konto</Link>
             </nav>
             <form action="/suche" method="get" className="navsearch" role="search">

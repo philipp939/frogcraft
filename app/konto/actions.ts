@@ -68,12 +68,3 @@ export async function toggleHidden(enabled: boolean): Promise<{ ok: boolean; mes
   return { ok: true, message: "Gespeichert." };
 }
 
-export async function saveCooldown(f: FormData) {
-  const token = await getToken();
-  if (!token) redirect("/?konto=login");
-  const minutes = Number.parseInt(str(f, "minutes"), 10);
-  const r = Number.isFinite(minutes) ? await rpc("account_set_cooldown", { p_token: token, p_minutes: minutes }) : null;
-  if (!r) redirect("/?konto=1&info=cooldown_invalid");
-  if (!r.ok) redirect(`/?konto=1&info=${r.error === "not_owner" ? "not_owner" : "cooldown_invalid"}`);
-  redirect("/?konto=1&info=gespeichert");
-}

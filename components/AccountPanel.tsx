@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { login, logout, newCode, register, saveCooldown, toggleHidden, togglePvp } from "@/app/konto/actions";
+import { login, logout, newCode, register, toggleHidden, togglePvp } from "@/app/konto/actions";
 import Avatar from "@/components/Avatar";
 import SwitchRow from "@/components/SwitchRow";
 import type { HistoryItem, Session } from "@/lib/auth";
@@ -98,19 +98,6 @@ export default function AccountPanel({ session: s, mode, fehler, info, wait, pro
             )}
           </section>
         </>
-      )}
-      {s.is_owner && (
-        <section className="sub">
-          <h3>Owner: Wartezeit für PvP</h3>
-          {info === "not_owner" && <p className="notice" role="alert">Nur der Rang Owner darf das ändern.</p>}
-          {info === "cooldown_invalid" && <p className="notice" role="alert">Bitte gib eine Zahl von 0 bis 1440 ein.</p>}
-          <form action={saveCooldown} className="form">
-            <label className="field">Minuten zwischen zwei Umstellungen (0 = keine Wartezeit)
-              <input name="minutes" type="number" min={0} max={1440} step={1} defaultValue={s.cooldown_minutes} required />
-            </label>
-            <button type="submit" className="btn">Speichern</button>
-          </form>
-        </section>
       )}
       <div className="row" style={{ marginTop: "1.25rem" }}>
         <form action={logout}><button type="submit" className="btn ghost">Abmelden</button></form>

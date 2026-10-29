@@ -4,7 +4,7 @@ import Avatar from "@/components/Avatar";
 import { leaderboard, SORTS, type Sort, fmtNum, fmtTime, kd } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Ranglisten", description: "Kills, Spielzeit und Kontostand der FrogCraft-Spieler." };
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 const SIZE = 25;
 const LABEL: Record<Sort, string> = { kills: "Kills", playtime_minutes: "Spielzeit", balance: "Kontostand" };
 

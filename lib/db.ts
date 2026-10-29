@@ -20,7 +20,7 @@ export const configured = Boolean(URL_ && KEY);
 async function query(qs: string): Promise<Player[] | null> {
   if (!configured) return null;
   try {
-    const r = await fetch(`${URL_}/rest/v1/player_public?${qs}`, { headers: headers(), next: { revalidate: 30 } });
+    const r = await fetch(`${URL_}/rest/v1/player_public?${qs}`, { headers: headers(), cache: "no-store" });
     if (!r.ok) {
       console.error(`[db] Supabase antwortete ${r.status}: ${(await r.text()).slice(0, 300)}`);
       return null;
@@ -59,7 +59,7 @@ async function count(filter: string): Promise<number | null> {
   if (!configured) return null;
   try {
     const r = await fetch(`${URL_}/rest/v1/player_public?select=uuid&hidden=eq.false${filter}`, {
-      headers: headers({ Prefer: "count=exact", Range: "0-0" }), next: { revalidate: 60 },
+      headers: headers({ Prefer: "count=exact", Range: "0-0" }), cache: "no-store",
     });
     if (!r.ok) return null;
     const total = r.headers.get("content-range")?.split("/")[1];

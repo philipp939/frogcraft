@@ -4,9 +4,9 @@ import Avatar from "@/components/Avatar";
 import Modal from "@/components/Modal";
 import PlayerCard from "@/components/PlayerCard";
 import AccountPanel from "@/components/AccountPanel";
+import SwitchRow from "@/components/SwitchRow";
 import { SERVER_IP, serverStatus } from "@/lib/server";
 import { getMyProfile, getPvpHistory, getSession } from "@/lib/auth";
-import SwitchRow from "@/components/SwitchRow";
 import { toggleHidden, togglePvp } from "@/app/konto/actions";
 import { leaderboard, getPlayer, playerRanks, fmtNum, fmtTime, configured, UUID_RE, type Player, type Sort } from "@/lib/db";
 
@@ -65,7 +65,34 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
     }
   }
 
-  const mins = session ? Math.max(1, Math.ceil(Number(sp.wait ?? session.cooldown_seconds) / 60)) : 0;
+  const boardsEl = (
+    <section className="boards">
+      {BOARDS.map((b, i) => {
+        const data = boards[i];
+        return (
+          <div className="panel" key={b.sort}>
+            <h2>{b.title}</h2>
+            {data === null ? <p className="muted">Gerade nicht verfügbar.</p> : data.rows.length === 0 ? <p className="muted">Noch keine Einträge.</p> : (
+              <ol className="list">
+                {data.rows.map((p, n) => (
+                  <li key={p.uuid}>
+                    <Link href={`/?spieler=${p.uuid}`} scroll={false}>
+                      <span className="rank">{n + 1}</span>
+                      <Avatar uuid={p.uuid} size={32} />
+                      <span className="nm">{p.username}</span>
+                      <span className="v">{value(b.sort, p)}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            )}
+            <p><Link href={`/rangliste?sort=${b.sort}`} className="more">Alle anzeigen</Link></p>
+          </div>
+        );
+      })}
+    </section>
+  );
+
   return (
     <>
       {SERVER_IP && (
@@ -79,13 +106,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
         </div>
       )}
 
+      {!configured && <p className="notice">Die Datenbank ist nicht verbunden.</p>}
+
       {session ? (
-        <section className="panel me" aria-label="Meine Infos">
-          {me && myRanks ? <PlayerCard p={me} ranks={myRanks} showDates={false} own /> : <p className="muted">Deine Daten sind gerade nicht verfügbar.</p>}
-          <div className="mepvp">
-            {sp.info === "gespeichert" && <p className="notice ok" role="status">Gespeichert.</p>}
-            {sp.info === "cooldown" && <p className="notice" role="alert">Du kannst PvP erst in etwa {mins} Min. wieder umstellen.</p>}
-            {sp.info === "technisch" && <p className="notice" role="alert">Gerade technisch nicht möglich.</p>}
+        <div className="home">
+          <aside className="panel me" aria-label="Meine Infos">
+            {me && myRanks ? <PlayerCard p={me} ranks={myRanks} showDates={false} own compact /> : <p className="muted">Deine Daten sind gerade nicht verfügbar.</p>}
             {session.verified ? (
               <div className="settings">
                 <SwitchRow action={togglePvp} initial={session.pvp_enabled} label="PvP" desc="Gilt ab deinem nächsten Beitritt zum Server." note={session.pvp_pending ? "Ausstehend – wird beim nächsten Beitritt aktiv." : undefined} />
@@ -98,46 +124,22 @@ export default async function Home({ searchParams }: { searchParams: Promise<SP>
                 <Link href="/?konto=1" scroll={false} className="btn">Jetzt verifizieren</Link>
               </div>
             )}
-          </div>
-        </section>
+          </aside>
+          {boardsEl}
+        </div>
       ) : (
-        <section className="hero">
-          <h1>FrogCraft</h1>
-          <p className="lead">Ranglisten und Spielerprofile des Servers. Mit einem Konto kannst du dein PvP selbst steuern.</p>
-          <div className="row">
-            <Link href="/?konto=login" scroll={false} className="btn">Anmelden</Link>
-            <Link href="/?konto=registrieren" scroll={false} className="btn ghost">Registrieren</Link>
-          </div>
-        </section>
-      )}
-
-      {!configured && <p className="notice">Die Datenbank ist nicht verbunden.</p>}
-
-      <section className="boards">
-        {BOARDS.map((b, i) => {
-          const data = boards[i];
-          return (
-            <div className="panel" key={b.sort}>
-              <h2>{b.title}</h2>
-              {data === null ? <p className="muted">Gerade nicht verfügbar.</p> : data.rows.length === 0 ? <p className="muted">Noch keine Einträge.</p> : (
-                <ol className="list">
-                  {data.rows.map((p, n) => (
-                    <li key={p.uuid}>
-                      <Link href={`/?spieler=${p.uuid}`} scroll={false}>
-                        <span className="rank">{n + 1}</span>
-                        <Avatar uuid={p.uuid} size={32} />
-                        <span className="nm">{p.username}</span>
-                        <span className="v">{value(b.sort, p)}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ol>
-              )}
-              <p><Link href={`/rangliste?sort=${b.sort}`} className="more">Alle anzeigen</Link></p>
+        <>
+          <section className="hero">
+            <h1>FrogCraft</h1>
+            <p className="lead">Ranglisten und Spielerprofile des Servers. Mit einem Konto kannst du dein PvP selbst steuern.</p>
+            <div className="row">
+              <Link href="/?konto=login" scroll={false} className="btn">Anmelden</Link>
+              <Link href="/?konto=registrieren" scroll={false} className="btn ghost">Registrieren</Link>
             </div>
-          );
-        })}
-      </section>
+          </section>
+          {boardsEl}
+        </>
+      )}
       {modal}
     </>
   );

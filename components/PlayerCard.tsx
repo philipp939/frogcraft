@@ -1,14 +1,15 @@
 import Avatar from "@/components/Avatar";
-import { fmtDate, fmtNum, fmtTime, kd, rankLabel, type Player, type Ranks } from "@/lib/db";
+import { fmtDate, fmtNum, fmtTime, kd, type Player, type Ranks } from "@/lib/db";
 
-export default function PlayerCard({ p, ranks, showDates = true, own = false }: { p: Player; ranks: Ranks; showDates?: boolean; own?: boolean }) {
+export default function PlayerCard({ p, ranks, showDates = true, own = false, compact = false }: {
+  p: Player; ranks: Ranks; showDates?: boolean; own?: boolean; compact?: boolean;
+}) {
   const head = (
     <div className="profile">
-      <Avatar uuid={p.uuid} size={80} />
+      <Avatar uuid={p.uuid} size={compact ? 56 : 80} />
       <div>
         <h2 className="pname">{p.username}</h2>
-        {(!p.hidden || own) && <p className="tags"><span className="badge">{rankLabel(p.rank_group)}</span></p>}
-        <p className="muted uuid">{p.uuid}</p>
+        {!compact && <p className="muted uuid">{p.uuid}</p>}
       </div>
     </div>
   );
@@ -17,11 +18,11 @@ export default function PlayerCard({ p, ranks, showDates = true, own = false }: 
   }
   const stats: [string, string][] = [
     ["Spielzeit", fmtTime(p.playtime_minutes)], ["Kills", fmtNum(p.kills)], ["Deaths", fmtNum(p.deaths)],
-    ["K/D", kd(p.kills, p.deaths)], ["Kontostand", `${fmtNum(p.balance)} $`], ["Rang", rankLabel(p.rank_group)],
+    ["K/D", kd(p.kills, p.deaths)], ["Kontostand", `${fmtNum(p.balance)} $`],
   ];
   const rk: [string, number | null][] = [["Kills", ranks.kills], ["Spielzeit", ranks.playtime], ["Kontostand", ranks.balance]];
   return (
-    <div className="pcard">
+    <div className={compact ? "pcard compact" : "pcard"}>
       {head}
       {own && p.hidden && <p className="notice small">Dein Profil ist versteckt. Andere sehen nur deinen Namen, und du erscheinst nicht in den Ranglisten.</p>}
       <dl className="stats">
